@@ -1,0 +1,108 @@
+Step 1: Install Dependencies
+First, create a virtual environment (optional) and install Flask and Chart.js. If you’re using a requirements file, create requirements.txt:
+Flask==2.0.1
+Then install the dependencies:
+pip install -r requirements.txt
+
+
+Step 2: app.py
+This is the main application file. It simulates fetching climate data (like temperature) and serves it to the frontend.
+
+python
+
+from flask import Flask, render_template
+import random
+
+app = Flask(__name__)
+
+# Simulated climate data
+# In a real application, you would pull this from an API or a database
+climate_data = {
+    "January": random.uniform(0, 10),
+    "February": random.uniform(0, 10),
+    "March": random.uniform(10, 15),
+    "April": random.uniform(15, 20),
+    "May": random.uniform(20, 25),
+    "June": random.uniform(25, 30),
+    "July": random.uniform(30, 35),
+    "August": random.uniform(25, 30),
+    "September": random.uniform(20, 25),
+    "October": random.uniform(15, 20),
+    "November": random.uniform(5, 10),
+    "December": random.uniform(0, 5),
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html', climate_data=climate_data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+Step 3: HTML Templates
+templates/index.html
+This is the main page where climate data will be visualized.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Data Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Monthly Climate Data</h1>
+    <div style="width: 60%; margin: auto;">
+        <canvas id="climateChart"></canvas>
+    </div>
+    <script>
+        const ctx = document.getElementById('climateChart').getContext('2d');
+        const climateData = {{ climate_data | tojson }};
+        
+        const labels = Object.keys(climateData);
+        const data = Object.values(climateData);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Average Temperature (°C)',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Temperature (°C)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                },
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+Step 4: Running the Application
+
+Run the application by navigating to your project directory and executing
+python app.py
