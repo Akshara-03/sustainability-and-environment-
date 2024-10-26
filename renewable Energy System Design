@@ -1,0 +1,94 @@
+Step 1: Install Dependencies
+First, create a virtual environment (optional) and install Flask. If you’re using a requirements file, create requirements.txt:
+Flask==2.0.1
+Then install the dependencies
+
+pip install -r requirements.txt
+Step 2: app.py
+This is the main application file, where you define routes and logic for energy output calculations.
+
+python
+
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    # Retrieve user inputs
+    solar_capacity = float(request.form.get('solar_capacity', 0))  # kW
+    solar_hours = float(request.form.get('solar_hours', 0))  # hours of sunlight per day
+    wind_capacity = float(request.form.get('wind_capacity', 0))  # kW
+    wind_hours = float(request.form.get('wind_hours', 0))  # hours of wind per day
+
+    # Calculate daily energy production
+    solar_energy = solar_capacity * solar_hours  # kWh
+    wind_energy = wind_capacity * wind_hours  # kWh
+    total_energy = solar_energy + wind_energy  # kWh
+
+    return render_template('result.html', solar_energy=solar_energy, wind_energy=wind_energy, total_energy=total_energy)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+Step 3: HTML Templates
+templates/index.html
+This is the main form page where users can input their system parameters.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renewable Energy System Design</title>
+</head>
+<body>
+    <h1>Renewable Energy System Design Tool</h1>
+    <form action="/calculate" method="POST">
+        <label for="solar_capacity">Solar Panel Capacity (kW):</label>
+        <input type="number" name="solar_capacity" id="solar_capacity" step="0.1" required><br>
+
+        <label for="solar_hours">Average Daily Sunlight Hours:</label>
+        <input type="number" name="solar_hours" id="solar_hours" step="0.1" required><br>
+
+        <label for="wind_capacity">Wind Turbine Capacity (kW):</label>
+        <input type="number" name="wind_capacity" id="wind_capacity" step="0.1" required><br>
+
+        <label for="wind_hours">Average Daily Wind Hours:</label>
+        <input type="number" name="wind_hours" id="wind_hours" step="0.1" required><br>
+
+        <button type="submit">Calculate Energy Output</button>
+    </form>
+</body>
+</html>
+templates/result.html
+This page displays the calculated energy output based on user input.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Output Results</title>
+</head>
+<body>
+    <h1>Energy Output Results</h1>
+    <p>Solar Energy Output: {{ solar_energy }} kWh</p>
+    <p>Wind Energy Output: {{ wind_energy }} kWh</p>
+    <p>Total Energy Output: {{ total_energy }} kWh</p>
+    <a href="/">Back to Design Tool</a>
+</body>
+</html>
+
+
+Step 4: Running the Application
+
+Run the application by navigating to your project directory and executing:
+python app.py
