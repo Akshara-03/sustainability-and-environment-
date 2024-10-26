@@ -1,0 +1,155 @@
+Step 1: Install Dependencies
+First, create a virtual environment (optional) and install Flask. If you’re using a requirements file, create requirements.txt:
+
+
+Flask==2.0.1
+Then install the dependencies:
+
+
+pip install -r requirements.txt
+
+
+Step 2: app.py
+This is the main application file, where you define routes and logic for the web app.
+
+python
+
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+# Sample eco-friendly tips
+eco_tips = [
+    "Reduce, Reuse, Recycle.",
+    "Choose energy-efficient appliances.",
+    "Use public transport or cycle instead of driving.",
+    "Plant trees and create green spaces.",
+    "Reduce water usage and fix leaks."
+]
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/tips')
+def tips():
+    return render_template('tips.html', tips=eco_tips)
+
+@app.route('/calculator')
+def calculator():
+    return render_template('calculator.html')
+
+@app.route('/result', methods=['POST'])
+def result():
+    # Retrieve user input for carbon footprint calculation
+    daily_food = float(request.form.get('daily_food', 0))  # kg
+    daily_transport = float(request.form.get('daily_transport', 0))  # km
+    daily_energy = float(request.form.get('daily_energy', 0))  # kWh
+
+    # Calculate carbon footprint estimates (dummy calculations)
+    food_footprint = daily_food * 2.5  # kg CO2 equivalent
+    transport_footprint = daily_transport * 0.25  # kg CO2 equivalent
+    energy_footprint = daily_energy * 0.5  # kg CO2 equivalent
+    total_footprint = food_footprint + transport_footprint + energy_footprint
+
+    return render_template('result.html', total_footprint=total_footprint)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+Step 3: HTML Templates
+templates/index.html
+This is the main page with links to eco-friendly tips and the carbon footprint calculator.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Friendly Web App</title>
+</head>
+<body>
+    <h1>Welcome to Eco-Friendly Living!</h1>
+    <p>Discover ways to live sustainably and track your carbon footprint.</p>
+    <ul>
+        <li><a href="/tips">Eco-Friendly Tips</a></li>
+        <li><a href="/calculator">Calculate Your Carbon Footprint</a></li>
+    </ul>
+</body>
+</html>
+templates/tips.html
+This page displays a list of eco-friendly tips.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Friendly Tips</title>
+</head>
+<body>
+    <h1>Eco-Friendly Tips</h1>
+    <ul>
+        {% for tip in tips %}
+            <li>{{ tip }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Home</a>
+</body>
+</html>
+templates/calculator.html
+This page contains the carbon footprint calculator form.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Footprint Calculator</title>
+</head>
+<body>
+    <h1>Calculate Your Carbon Footprint</h1>
+    <form action="/result" method="POST">
+        <label for="daily_food">Daily Food Consumption (kg):</label>
+        <input type="number" name="daily_food" id="daily_food" step="0.1" required><br>
+
+        <label for="daily_transport">Daily Transport Distance (km):</label>
+        <input type="number" name="daily_transport" id="daily_transport" step="0.1" required><br>
+
+        <label for="daily_energy">Daily Energy Consumption (kWh):</label>
+        <input type="number" name="daily_energy" id="daily_energy" step="0.1" required><br>
+
+        <button type="submit">Calculate</button>
+    </form>
+    <a href="/">Back to Home</a>
+</body>
+</html>
+templates/result.html
+This page displays the calculated carbon footprint.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Footprint Result</title>
+</head>
+<body>
+    <h1>Your Carbon Footprint</h1>
+    <p>Your estimated carbon footprint is: {{ total_footprint }} kg CO2 equivalent</p>
+    <a href="/">Back to Home</a>
+</body>
+</html>
+
+
+Step 4: Running the Application
+Run the application by navigating to your project directory and executing:
+
+python app.py
