@@ -1,0 +1,130 @@
+Step 1: Set Up Your Environment
+Install Flask: You can create a virtual environment and install Flask by running:
+
+
+pip install Flask
+Create Project Structure:
+
+
+carbon_footprint_tracker/
+├── app.py
+├── templates/
+│   ├── index.html
+│   └── result.html
+
+
+
+Step 2: Create app.py
+
+from flask import Flask, render_template, request
+app = Flask(__name__)
+# Emission factors in kg CO2e
+emission_factors = {
+    'car': 0.2,  # kg CO2 per km
+    'bus': 0.05,  # kg CO2 per km
+    'train': 0.1,  # kg CO2 per km
+    'electricity': 0.5,  # kg CO2 per kWh
+    'gas': 2.0,  # kg CO2 per therm
+    'meat': 3.5,  # kg CO2 per kg of meat
+    'vegetables': 0.5,  # kg CO2 per kg of vegetables
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    total_emissions = 0
+
+    # Get user input
+    car_distance = float(request.form.get('car_distance', 0))
+    bus_distance = float(request.form.get('bus_distance', 0))
+    train_distance = float(request.form.get('train_distance', 0))
+    electricity_usage = float(request.form.get('electricity_usage', 0))
+    gas_usage = float(request.form.get('gas_usage', 0))
+    meat_consumption = float(request.form.get('meat_consumption', 0))
+    vegetable_consumption = float(request.form.get('vegetable_consumption', 0))
+
+    # Calculate emissions
+    total_emissions += car_distance * emission_factors['car']
+    total_emissions += bus_distance * emission_factors['bus']
+    total_emissions += train_distance * emission_factors['train']
+    total_emissions += electricity_usage * emission_factors['electricity']
+    total_emissions += gas_usage * emission_factors['gas']
+    total_emissions += meat_consumption * emission_factors['meat']
+    total_emissions += vegetable_consumption * emission_factors['vegetables']
+
+    return render_template('result.html', total_emissions=total_emissions)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+Step 3: Create templates/index.html
+
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Footprint Tracker</title>
+</head>
+<body>
+    <h1>Carbon Footprint Tracker</h1>
+    <form action="/calculate" method="POST">
+        <label for="car_distance">Car Distance (km):</label>
+        <input type="number" name="car_distance" id="car_distance" required><br>
+        
+        <label for="bus_distance">Bus Distance (km):</label>
+        <input type="number" name="bus_distance" id="bus_distance"><br>
+        
+        <label for="train_distance">Train Distance (km):</label>
+        <input type="number" name="train_distance" id="train_distance"><br>
+        
+        <label for="electricity_usage">Electricity Usage (kWh):</label>
+        <input type="number" name="electricity_usage" id="electricity_usage" required><br>
+        
+        <label for="gas_usage">Gas Usage (therms):</label>
+        <input type="number" name="gas_usage" id="gas_usage"><br>
+        
+        <label for="meat_consumption">Meat Consumption (kg):</label>
+        <input type="number" name="meat_consumption" id="meat_consumption"><br>
+        
+        <label for="vegetable_consumption">Vegetable Consumption (kg):</label>
+        <input type="number" name="vegetable_consumption" id="vegetable_consumption"><br>
+        
+        <button type="submit">Calculate Carbon Footprint</button>
+    </form>
+</body>
+</html>
+
+
+
+
+Step 4: Create templates/result.html
+
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Footprint Result</title>
+</head>
+<body>
+    <h1>Your Carbon Footprint</h1>
+    <p>Total CO2 Emissions: {{ total_emissions }} kg</p>
+    <a href="/">Back</a>
+</body>
+</html>
+
+
+
+Step 5: Run the Application
+Navigate to the project directory and run the following command:
+
+python app.py
