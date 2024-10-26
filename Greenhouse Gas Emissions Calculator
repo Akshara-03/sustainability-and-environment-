@@ -1,0 +1,124 @@
+Step 1: app.py
+This is the main Python file for the Flask application.
+
+python
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+# Emission factors in kg CO2e per unit (km, kWh, kg, etc.)
+emission_factors = {
+    'car': 0.21,  # kg CO2 per km
+    'bus': 0.05,  # kg CO2 per km
+    'train': 0.04,  # kg CO2 per km
+    'electricity': 0.5,  # kg CO2 per kWh
+    'gas': 2.3,  # kg CO2 per cubic meter
+    'meat': 5.0,  # kg CO2 per kg of meat
+    'vegetables': 0.2,  # kg CO2 per kg of vegetables
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    total_emissions = 0
+
+    # Retrieve user inputs
+    car_km = float(request.form.get('car_km', 0))
+    bus_km = float(request.form.get('bus_km', 0))
+    train_km = float(request.form.get('train_km', 0))
+    electricity_kwh = float(request.form.get('electricity_kwh', 0))
+    gas_m3 = float(request.form.get('gas_m3', 0))
+    meat_kg = float(request.form.get('meat_kg', 0))
+    vegetables_kg = float(request.form.get('vegetables_kg', 0))
+
+    # Calculate emissions for each category
+    total_emissions += car_km * emission_factors['car']
+    total_emissions += bus_km * emission_factors['bus']
+    total_emissions += train_km * emission_factors['train']
+    total_emissions += electricity_kwh * emission_factors['electricity']
+    total_emissions += gas_m3 * emission_factors['gas']
+    total_emissions += meat_kg * emission_factors['meat']
+    total_emissions += vegetables_kg * emission_factors['vegetables']
+
+    # Pass the result to the result page
+    return render_template('result.html', total_emissions=total_emissions)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+Step 2: HTML Templates
+templates/index.html
+This is the main form page where users enter data about their activities.
+
+html
+Copy code
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenhouse Gas Emissions Calculator</title>
+</head>
+<body>
+    <h1>Greenhouse Gas Emissions Calculator</h1>
+    <form action="/calculate" method="POST">
+        <label for="car_km">Car Travel Distance (km):</label>
+        <input type="number" name="car_km" id="car_km" step="0.1"><br>
+
+        <label for="bus_km">Bus Travel Distance (km):</label>
+        <input type="number" name="bus_km" id="bus_km" step="0.1"><br>
+
+        <label for="train_km">Train Travel Distance (km):</label>
+        <input type="number" name="train_km" id="train_km" step="0.1"><br>
+
+        <label for="electricity_kwh">Electricity Usage (kWh):</label>
+        <input type="number" name="electricity_kwh" id="electricity_kwh" step="0.1"><br>
+
+        <label for="gas_m3">Gas Usage (m³):</label>
+        <input type="number" name="gas_m3" id="gas_m3" step="0.1"><br>
+
+        <label for="meat_kg">Meat Consumption (kg):</label>
+        <input type="number" name="meat_kg" id="meat_kg" step="0.1"><br>
+
+        <label for="vegetables_kg">Vegetables Consumption (kg):</label>
+        <input type="number" name="vegetables_kg" id="vegetables_kg" step="0.1"><br>
+
+        <button type="submit">Calculate Emissions</button>
+    </form>
+</body>
+</html>
+templates/result.html
+This page displays the calculated total emissions.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emissions Result</title>
+</head>
+<body>
+    <h1>Your Greenhouse Gas Emissions</h1>
+    <p>Total CO2 Emissions: {{ total_emissions }} kg</p>
+    <a href="/">Back to Calculator</a>
+</body>
+</html>
+
+
+Step 3: requirements.txt
+
+To ensure dependencies are installed, you can create a requirements.txt file
+Flask==2.0.1
+
+Step 4: Running the Application
+
+Install dependencies:
+pip install -r requirements.txt
+Run the application:
+python app.py
