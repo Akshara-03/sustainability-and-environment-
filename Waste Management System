@@ -1,0 +1,171 @@
+Step 1: Install Dependencies
+First, create a virtual environment (optional) and install Flask. If you’re using a requirements file, create requirements
+Flask==2.0.1
+Then install the dependencies:
+
+
+pip install -r requirements.txt
+Step 2: app.py
+This is the main application file where you define routes and logic for waste management functionalities.
+
+python
+Copy code
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+# Sample data for waste disposal reports and statistics
+waste_reports = []
+waste_statistics = {
+    "total_reports": 0,
+    "recycled": 0,
+    "composted": 0,
+    "landfilled": 0,
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/report', methods=['GET', 'POST'])
+def report():
+    if request.method == 'POST':
+        waste_type = request.form.get('waste_type')
+        quantity = int(request.form.get('quantity'))
+        
+        # Save the report
+        waste_reports.append({'type': waste_type, 'quantity': quantity})
+        waste_statistics["total_reports"] += 1
+        
+        # Update statistics
+        if waste_type == "Recycled":
+            waste_statistics["recycled"] += quantity
+        elif waste_type == "Composted":
+            waste_statistics["composted"] += quantity
+        elif waste_type == "Landfilled":
+            waste_statistics["landfilled"] += quantity
+
+        return redirect(url_for('statistics'))
+    
+    return render_template('report.html')
+
+@app.route('/statistics')
+def statistics():
+    return render_template('statistics.html', stats=waste_statistics)
+
+@app.route('/tips')
+def tips():
+    eco_tips = [
+        "Always separate your recyclables from general waste.",
+        "Compost food scraps and yard waste.",
+        "Use reusable bags and containers.",
+        "Educate others about proper waste disposal.",
+        "Participate in local clean-up events."
+    ]
+    return render_template('tips.html', tips=eco_tips)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+Step 3: HTML Templates
+templates/index.html
+This is the main landing page with links to report waste and view statistics.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Management System</title>
+</head>
+<body>
+    <h1>Welcome to the Waste Management System</h1>
+    <p>Manage your waste responsibly and track your recycling efforts.</p>
+    <ul>
+        <li><a href="/report">Report Waste Disposal</a></li>
+        <li><a href="/statistics">View Waste Statistics</a></li>
+        <li><a href="/tips">Waste Management Tips</a></li>
+    </ul>
+</body>
+</html>
+templates/report.html
+This page contains a form to report waste disposal.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Waste Disposal</title>
+</head>
+<body>
+    <h1>Report Waste Disposal</h1>
+    <form action="/report" method="POST">
+        <label for="waste_type">Type of Waste:</label>
+        <select name="waste_type" id="waste_type" required>
+            <option value="Recycled">Recycled</option>
+            <option value="Composted">Composted</option>
+            <option value="Landfilled">Landfilled</option>
+        </select><br>
+
+        <label for="quantity">Quantity (kg):</label>
+        <input type="number" name="quantity" id="quantity" step="0.1" required><br>
+
+        <button type="submit">Submit Report</button>
+    </form>
+    <a href="/">Back to Home</a>
+</body>
+</html>
+templates/statistics.html
+This page displays waste disposal statistics.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Statistics</title>
+</head>
+<body>
+    <h1>Waste Disposal Statistics</h1>
+    <p>Total Reports: {{ stats.total_reports }}</p>
+    <p>Recycled: {{ stats.recycled }} kg</p>
+    <p>Composted: {{ stats.composted }} kg</p>
+    <p>Landfilled: {{ stats.landfilled }} kg</p>
+    <a href="/">Back to Home</a>
+</body>
+</html>
+templates/tips.html
+This page provides tips on waste management.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Management Tips</title>
+</head>
+<body>
+    <h1>Waste Management Tips</h1>
+    <ul>
+        {% for tip in tips %}
+            <li>{{ tip }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Home</a>
+</body>
+</html>
+
+
+Step 4: Running the Application
+Run the application by navigating to your project directory and executing:
+
+
+python app.py
