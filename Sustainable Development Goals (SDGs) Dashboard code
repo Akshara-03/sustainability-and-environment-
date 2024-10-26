@@ -1,0 +1,125 @@
+
+Step 1: Install Dependencies
+In your terminal, create a virtual environment (optional) and install Flask:
+
+pip install Flask
+Then, create a requirements.txt file:
+
+plaintext
+Copy code
+Flask==2.0.1
+Step 2: app.py
+This is the main application file, where you define routes for the dashboard and individual SDG pages.
+
+python
+
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+# Sample data for SDGs (this can be expanded or connected to a real database)
+sdg_data = {
+    "No Poverty": {"goal": 1, "progress": 45},
+    "Zero Hunger": {"goal": 2, "progress": 50},
+    "Good Health and Well-being": {"goal": 3, "progress": 60},
+    "Quality Education": {"goal": 4, "progress": 55},
+    "Gender Equality": {"goal": 5, "progress": 70},
+    "Clean Water and Sanitation": {"goal": 6, "progress": 65},
+    # Add more SDGs as needed
+}
+
+@app.route('/')
+def index():
+    # Pass SDG data to the main dashboard
+    return render_template('index.html', sdg_data=sdg_data)
+
+@app.route('/sdg/<int:goal_id>')
+def sdg(goal_id):
+    # Find the SDG data based on the goal ID
+    for sdg_name, data in sdg_data.items():
+        if data["goal"] == goal_id:
+            return render_template('sdg.html', sdg_name=sdg_name, progress=data["progress"])
+    return "SDG not found", 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
+Step 3: HTML Templates
+templates/index.html
+The main dashboard displays each SDG's progress with a simple bar chart.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDG Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Sustainable Development Goals Dashboard</h1>
+    <div style="width: 60%; margin: auto;">
+        <canvas id="sdgChart"></canvas>
+    </div>
+    <script>
+        const ctx = document.getElementById('sdgChart').getContext('2d');
+        const sdgData = {{ sdg_data | tojson }};
+        
+        const labels = Object.keys(sdgData);
+        const data = Object.values(sdgData).map(sdg => sdg.progress);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Progress (%)',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+templates/sdg.html
+This template displays details for an individual SDG. It shows a progress bar and provides information on the selected SDG.
+
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ sdg_name }}</title>
+</head>
+<body>
+    <h1>{{ sdg_name }}</h1>
+    <h2>Progress: {{ progress }}%</h2>
+    <div style="width: 100%; background-color: #ddd;">
+        <div style="width: {{ progress }}%; background-color: #4caf50; color: white; padding: 10px;">
+            {{ progress }}%
+        </div>
+    </div>
+    <a href="/">Back to Dashboard</a>
+</body>
+</html>
+
+
+
+Step 4: Running the Application
+Run the application by navigating to your project directory and executing:
+
+python app.py
